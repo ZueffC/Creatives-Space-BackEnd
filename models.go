@@ -79,7 +79,7 @@ func connect() {
 	db.AutoMigrate(&AboutUser{})
 	db.AutoMigrate(&Comments{})
 	db.AutoMigrate(&Video{})
-	MySQLDB.Migrator().CreateTable(&User{})
+	MySQLDB.AutoMigrate(&User{})
 }
 
 func MD5(data string) string {
