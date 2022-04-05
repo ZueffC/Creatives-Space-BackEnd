@@ -12,7 +12,7 @@ import (
 
 var db, err = gorm.Open("sqlite3", "db.db")
 
-var dns = "tiproject:Vitsannaklal2021!@(db4free.net:3306)/db_auth?charset=utf8&parseTime=True&loc=Local"
+var dns = "creativesspace:WeWantPeace!@(db4free.net:3306)/creativesspace?charset=utf8&parseTime=True&loc=Local"
 var MySQLDB, err2 = gorm.Open("mysql", dns)
 
 type User struct {
