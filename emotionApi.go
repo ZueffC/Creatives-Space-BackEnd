@@ -53,4 +53,20 @@ func emotionApi(v1 *gin.RouterGroup) {
 		result, _ := json.Marshal(&Result{})
 		context.Data(200, "application/json", result)
 	})
+
+	v1.POST("/liked-videos", func(context *gin.Context) {
+		var VideoEmotions []VideoEmotions
+		data := struct {
+			UserId int `json:"userId"`
+		}{}	
+
+		if err := context.BindJSON(&data); err != nil {
+			panic(err)
+		}
+
+		db.Where("user_id = ? AND emotion = ?", data.UserId, true).Find(&VideoEmotions)
+
+		result, _ := json.Marshal(VideoEmotions)
+		context.Data(200, "application/json", result)
+	})
 }

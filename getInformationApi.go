@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -90,6 +91,24 @@ func getInformationApi(v1 *gin.RouterGroup) {
 		db.Where("user_id = ?", userId).Find(&aboutUser)
 
 		result, _ := json.Marshal(aboutUser.Avatar)
+		context.Data(200, "application/json", result)
+	})
+
+	v1.POST("/search", func(context *gin.Context) {
+		var Videos []Video
+
+		data := struct {
+			Title string `json:"title"`
+		}{}
+
+		if err := context.BindJSON(&data); err != nil {
+			panic(err)
+		}
+
+		var title string = strings.ToLower(data.Title)
+		db.Raw("SELECT * FROM videos WHERE LOWER(name) LIKE ?", "%"+title+"%").Scan(&Videos)
+
+		result, _ := json.Marshal(Videos)
 		context.Data(200, "application/json", result)
 	})
 }
