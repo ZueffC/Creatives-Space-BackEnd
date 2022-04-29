@@ -96,6 +96,7 @@ func getInformationApi(v1 *gin.RouterGroup) {
 
 	v1.POST("/search", func(context *gin.Context) {
 		var Videos []Video
+		var Users []User
 
 		data := struct {
 			Title string `json:"title"`
@@ -107,8 +108,17 @@ func getInformationApi(v1 *gin.RouterGroup) {
 
 		var title string = strings.ToLower(data.Title)
 		db.Raw("SELECT * FROM videos WHERE LOWER(name) LIKE ?", "%"+title+"%").Scan(&Videos)
+		MySQLDB.Raw("SELECT * FROM users WHERE LOWER(nick) LIKE ?", "%"+title+"%").Scan(&Users)
 
-		result, _ := json.Marshal(Videos)
+		var SearchResults struct {
+			Users  []User
+			Videos []Video
+		}
+
+		SearchResults.Users = Users
+		SearchResults.Videos = Videos
+
+		result, _ := json.Marshal(SearchResults)
 		context.Data(200, "application/json", result)
 	})
 }

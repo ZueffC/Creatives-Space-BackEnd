@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,12 +19,14 @@ func uploadApi(v1 *gin.RouterGroup) {
 		name, _ := context.GetPostForm("name")
 		about, _ := context.GetPostForm("about")
 
-		if video != nil {
-			os.MkdirAll("./uploads/users/"+userId+"/videos/"+MD5(video.Filename)+"/video", 0777)
-			os.MkdirAll("./uploads/users/"+userId+"/videos/"+MD5(video.Filename)+"/cover", 0777)
+		nameOfVideo := strings.ToLower(name)
 
-			pathToVideo := "uploads/users/" + userId + "/videos/" + MD5(video.Filename) + "/video/" + video.Filename
-			pathToCover := "uploads/users/" + userId + "/videos/" + MD5(video.Filename) + "/cover/" + cover.Filename
+		if video != nil {
+			os.MkdirAll("./uploads/users/"+userId+"/videos/"+MD5(nameOfVideo)+"/video", 0777)
+			os.MkdirAll("./uploads/users/"+userId+"/videos/"+MD5(nameOfVideo)+"/cover", 0777)
+
+			pathToVideo := "uploads/users/" + userId + "/videos/" + MD5(nameOfVideo) + "/video/" + video.Filename
+			pathToCover := "uploads/users/" + userId + "/videos/" + MD5(nameOfVideo) + "/cover/" + cover.Filename
 
 			context.SaveUploadedFile(video, fmt.Sprintf("./%s", pathToVideo))
 			context.SaveUploadedFile(cover, fmt.Sprintf("./%s", pathToCover))
@@ -34,7 +37,7 @@ func uploadApi(v1 *gin.RouterGroup) {
 				UserId:      id,
 				PathToVideo: pathToVideo,
 				Cover:       pathToCover,
-				Name:        name,
+				Name:        nameOfVideo,
 				About:       about,
 			}
 			db.Create(&videos)
@@ -72,6 +75,29 @@ func uploadApi(v1 *gin.RouterGroup) {
 
 			db.Model(&AboutUser{}).Where("user_id = ?", id).Update("cover", pathToCover)
 		}
+
+		result, _ := json.Marshal(&Result{200, "Success"})
+		context.Data(200, "application/json", result)
+	})
+
+	v1.POST("/delete-video", func(context *gin.Context) {
+		var video Video
+
+		data := struct {
+			VideoId int `json:"video_id"`
+			UserId  int `json:"user_id"`
+		}{}
+
+		if err := context.BindJSON(&data); err != nil {
+			panic(err)
+		}
+
+		db.Model(&Video{}).Where("id = ?", data.VideoId).Find(&video)
+
+		pathToVideoFolder := "./uploads/users/" + fmt.Sprint(data.UserId) + "/videos/" + MD5(video.Name)
+		os.RemoveAll(pathToVideoFolder)
+
+		db.Where("id = ? AND user_id = ?", data.VideoId, data.UserId).Delete(&Video{})
 
 		result, _ := json.Marshal(&Result{200, "Success"})
 		context.Data(200, "application/json", result)
