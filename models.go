@@ -69,6 +69,12 @@ type Comments struct {
 	TextComment string
 }
 
+type History struct {
+	gorm.Model
+	UserId  uint64
+	VideoId uint64
+}
+
 func connect() {
 	if err != nil {
 		panic(err)
@@ -78,6 +84,7 @@ func connect() {
 	db.AutoMigrate(&Subscribers{})
 	db.AutoMigrate(&AboutUser{})
 	db.AutoMigrate(&Comments{})
+	db.AutoMigrate(&History{})
 	db.AutoMigrate(&Video{})
 	MySQLDB.AutoMigrate(&User{})
 }

@@ -47,6 +47,24 @@ func mainApi(v1 *gin.RouterGroup) {
 		}
 	})
 
+	v1.GET("/add-to-history/by/:userId/to/:videoId", func(context *gin.Context) {
+		var history History
+
+		userId := context.Param("userId")
+		videoId := context.Param("videoId")
+
+		userIdInt, _ := strconv.ParseUint(userId, 10, 64)
+		videoIdInt, _ := strconv.ParseUint(videoId, 10, 64)
+
+		db.Where("user_id = ? AND video_id = ?", userIdInt, videoIdInt).Find(&history)
+
+		if history.ID > 0 {
+			fmt.Printf("")
+		} else {
+			db.Create(&History{UserId: userIdInt, VideoId: videoIdInt})
+		}
+	})
+
 	v1.POST("/change-information", func(context *gin.Context) {
 		var data UserData
 

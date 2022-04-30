@@ -60,6 +60,18 @@ func getInformationApi(v1 *gin.RouterGroup) {
 		}
 	})
 
+	v1.GET("/history/by/:userId", func(context *gin.Context) {
+		var History []History
+
+		userId := context.Param("userId")
+		id, _ := strconv.ParseUint(userId, 10, 64)
+
+		db.Where("user_id = ?", id).Find(&History)
+
+		result, _ := json.Marshal(History)
+		context.Data(200, "application/json", result)
+	})
+
 	v1.GET("/existNick/:nick", func(context *gin.Context) {
 		var user User
 		nick := context.Param("nick")

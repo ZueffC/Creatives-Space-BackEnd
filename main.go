@@ -41,6 +41,7 @@ func main() {
 	Admin.AddResource(&Subscribers{})
 	Admin.AddResource(&AboutUser{})
 	Admin.AddResource(&Comments{})
+	Admin.AddResource(&History{})
 	Admin.AddResource(&Video{})
 
 	app.Any("/admin/*resources", gin.WrapH(adminServer))
